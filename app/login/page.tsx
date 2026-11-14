@@ -4,14 +4,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
-const demoUsers = {
-  admin: { username: 'admin', password: 'admin123', role: 'admin', name: 'Admin Utama' },
-  participant: { username: 'peserta', password: 'peserta123', role: 'participant', name: 'Peserta Ujian' },
-};
+import { demoUsers, type Role } from '@/lib/demo-data';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'participant'>('admin');
+  const [selectedRole, setSelectedRole] = useState<Role>('admin');
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
@@ -20,17 +17,10 @@ export default function LoginPage() {
     event.preventDefault();
 
     const user = demoUsers[selectedRole];
-
     if (username === user.username && password === user.password) {
-      localStorage.setItem(
-        'exambppp-session',
-        JSON.stringify({
-          name: user.name,
-          role: user.role,
-          username: user.username,
-        })
-      );
-
+      const session = { name: user.name, role: user.role, username: user.username };
+      localStorage.setItem('exambppp-session', JSON.stringify(session));
+      document.cookie = `exambppp_session=${encodeURIComponent(JSON.stringify(session))}; path=/; max-age=86400; SameSite=Lax`;
       router.push('/dashboard');
       return;
     }
@@ -45,7 +35,7 @@ export default function LoginPage() {
           <p className="text-sm uppercase tracking-[0.2em] text-brand-100">EXAMBPPP</p>
           <h1 className="mt-5 text-4xl font-black">Akses portal ujian digital</h1>
           <p className="mt-5 max-w-md text-brand-50/80">
-            Masuk sebagai administrator untuk mengelola ujian atau sebagai peserta untuk mengikuti tes.
+            Portal demo untuk admin dan peserta, siap dikembangkan menjadi sistem ujian produksi.
           </p>
 
           <div className="mt-10 space-y-4 text-sm text-brand-50">
@@ -61,22 +51,10 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-950 p-2">
-            <button
-              type="button"
-              onClick={() => setSelectedRole('admin')}
-              className={`rounded-xl px-4 py-2 font-medium transition ${
-                selectedRole === 'admin' ? 'bg-brand-500 text-white' : 'text-slate-300'
-              }`}
-            >
+            <button type="button" onClick={() => setSelectedRole('admin')} className={`rounded-xl px-4 py-2 font-medium transition ${selectedRole === 'admin' ? 'bg-brand-500 text-white' : 'text-slate-300'}`}>
               Admin
             </button>
-            <button
-              type="button"
-              onClick={() => setSelectedRole('participant')}
-              className={`rounded-xl px-4 py-2 font-medium transition ${
-                selectedRole === 'participant' ? 'bg-brand-500 text-white' : 'text-slate-300'
-              }`}
-            >
+            <button type="button" onClick={() => setSelectedRole('participant')} className={`rounded-xl px-4 py-2 font-medium transition ${selectedRole === 'participant' ? 'bg-brand-500 text-white' : 'text-slate-300'}`}>
               Peserta
             </button>
           </div>
@@ -84,23 +62,12 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={submit}>
             <div>
               <label className="mb-2 block text-sm text-slate-300">Username</label>
-              <input
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-brand-500"
-                placeholder="Masukkan username"
-              />
+              <input value={username} onChange={(event) => setUsername(event.target.value)} className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-brand-500" placeholder="Masukkan username" />
             </div>
 
             <div>
               <label className="mb-2 block text-sm text-slate-300">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-brand-500"
-                placeholder="Masukkan password"
-              />
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-brand-500" placeholder="Masukkan password" />
             </div>
 
             {error ? <p className="text-sm text-red-400">{error}</p> : null}
@@ -111,9 +78,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center text-sm text-slate-400">
-            <Link href="/" className="text-brand-300 hover:text-brand-200">
-              Kembali ke beranda
-            </Link>
+            <Link href="/" className="text-brand-300 hover:text-brand-200">Kembali ke beranda</Link>
           </div>
         </div>
       </div>

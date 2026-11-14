@@ -1,33 +1,56 @@
 # EXAMBPPP
 
-Aplikasi web ujian sederhana berbasis Next.js untuk demo/pilot: beranda publik, login demo, dashboard, bank soal, ujian bertimer, penilaian otomatis, dan riwayat hasil.
+EXAMBPPP is a production-style exam management demo designed for public deployment and rapid product validation. It includes admin management, question bank controls, a timed exam flow, auto-scoring, and result tracking in a clean Next.js interface.
 
-## Jalankan lokal
+## Features
 
-Butuh Node.js 18.17 atau lebih baru.
+- Admin and participant role flows
+- Exam dashboard with role-aware navigation
+- Question bank editor for admin
+- Timed exam experience
+- Automatic scoring and result history
+- Responsive dark UI for deployment-ready presentation
+- API health endpoints for operational readiness checks
+
+## Local run
+
+Requires Node.js 18.17+.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Buka http://localhost:3000.
+Then open:
 
-## Akun demo
+- http://localhost:3000
 
-- Admin: `admin` / `admin123`
-- Peserta: `peserta` / `peserta123`
+## Demo auth
 
-Alur: login admin → dashboard → bank soal (`/soal`) untuk mengubah soal → logout → login peserta → mulai ujian → lihat hasil. Admin juga dapat melihat `/admin`.
+- Admin: admin / admin123
+- Participant: peserta / peserta123
 
-## Publikasi di Vercel
+## Production-style notes
 
-1. Import `dtindro54-ctrl/exambppp` di https://vercel.com/new.
-2. Vercel mendeteksi Next.js secara otomatis; gunakan perintah build `npm run build`.
-3. Klik **Deploy**. Tidak ada environment variable yang diperlukan untuk demo ini.
+This project is a strong demo/pilot implementation, not a full production SaaS with secure authentication or database persistence. It is designed to show the product flow clearly and can be extended with Supabase/PostgreSQL, server-side auth, audit logs, and role permissions.
 
-Push baru ke branch `main` akan memicu deployment otomatis setelah repo terhubung ke Vercel. Saya tidak dapat membuat deployment live atau menghubungkan akun Vercel dari GitHub saja; hal itu memerlukan otorisasi akun hosting.
+## Deployment to Vercel
 
-## Batasan keamanan dan data — penting
+1. Push the repository to GitHub.
+2. Import the repo into Vercel.
+3. Vercel auto-detects the Next.js app.
+4. Keep default build settings.
+5. Deploy.
 
-Versi ini merupakan **demo/pilot**, bukan sistem ujian produksi yang aman. Login demo hanya validasi di browser, tidak ada server-side authentication/authorization. Soal, jawaban benar, dan hasil disimpan di `localStorage` browser, sehingga tidak tersinkron antarperangkat dan tidak boleh dipakai untuk ujian berisiko tinggi atau menyimpan data pribadi/sensitif. Jangan gunakan akun demo sebagai kredensial sungguhan. Untuk produksi diperlukan backend/database, autentikasi server, kontrol akses, validasi server-side, kebijakan privasi, backup, serta pengujian keamanan.
+This environment cannot directly connect to your Vercel account, so the final live deployment still requires your own hosting authorization.
+
+## Future upgrade path
+
+Recommended real production next steps:
+
+- Supabase/PostgreSQL
+- NextAuth or secure session management
+- Server-side protected routes
+- User management and audit logging
+- CSV/PDF export of results
+- Multi-tenant exam configuration
