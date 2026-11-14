@@ -1,61 +1,19 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-const upcoming = [
-  { title: 'Tes Literasi', time: '08:00', status: 'Ready' },
-  { title: 'Ujian Akhir', time: '10:30', status: 'Scheduled' },
-  { title: 'Try Out', time: '13:15', status: 'Ready' },
+type Question = { id: number; text: string; options: string[]; answer: number };
+const defaults: Question[] = [
+  { id: 1, text: 'Perangkat lunak yang digunakan untuk mengelola ujian digital disebut?', options: ['Learning Management System', 'Database Engine', 'Text Editor', 'Browser Cache'], answer: 0 },
+  { id: 2, text: 'Apa tujuan timer dalam ujian?', options: ['Mengatur nilai', 'Membatasi waktu pengerjaan', 'Membuat soal', 'Mengelola akun'], answer: 1 },
 ];
-
-export default function ParticipantPage() {
-  return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-brand-200">Peserta</p>
-            <h1 className="mt-2 text-4xl font-black">Portal ujian</h1>
-          </div>
-          <Link href="/dashboard" className="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200">
-            Dashboard
-          </Link>
-        </header>
-
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-2xl font-bold">Jadwal ujian saya</h2>
-            <div className="mt-6 space-y-4">
-              {upcoming.map((item) => (
-                <div key={item.title} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-slate-400">{item.time}</p>
-                  </div>
-                  <span className="rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-1 text-xs text-brand-200">
-                    {item.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-2xl font-bold">Info akun</h2>
-            <div className="mt-6 space-y-4 text-slate-200">
-              <div className="rounded-2xl bg-slate-950/50 p-4">
-                <p className="text-sm text-slate-400">Nama</p>
-                <p className="mt-2 text-xl font-semibold">Peserta Ujian</p>
-              </div>
-              <div className="rounded-2xl bg-slate-950/50 p-4">
-                <p className="text-sm text-slate-400">Status</p>
-                <p className="mt-2 text-xl font-semibold text-emerald-300">Aktif</p>
-              </div>
-              <Link href="/ujian" className="mt-4 block rounded-full bg-brand-500 px-5 py-3 text-center font-semibold text-white">
-                Mulai ujian
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
+export default function QuestionBankPage() {
+  const [questions, setQuestions] = useState<Question[]>(defaults);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { try { const stored = JSON.parse(localStorage.getItem('exambppp-questions') ?? 'null'); if (Array.isArray(stored) && stored.length) setQuestions(stored); } catch { /* use sample questions */ } }, []);
+  const persist = (next: Question[]) => { setQuestions(next); localStorage.setItem('exambppp-questions', JSON.stringify(next)); setSaved(true); window.setTimeout(() => setSaved(false), 1800); };
+  const addQuestion = () => { const id = Math.max(0, ...questions.map((question) => question.id)) + 1; persist([...questions, { id, text: 'Tulis pertanyaan baru', options: ['Pilihan A', 'Pilihan B', 'Pilihan C', 'Pilihan D'], answer: 0 }]); };
+  const update = (id: number, patch: Partial<Question>) => persist(questions.map((question) => question.id === id ? { ...question, ...patch } : question));
+  return <main className="min-h-screen bg-slate-950 px-6 py-10 text-white"><div className="mx-auto max-w-5xl"><header className="mb-8 flex flex-wrap items-center justify-between gap-4"><div><p className="text-sm uppercase tracking-[0.2em] text-brand-200">Administrator</p><h1 className="mt-2 text-4xl font-black">Bank soal</h1></div><Link href="/dashboard" className="rounded-full border border-slate-700 px-4 py-2">Dashboard</Link></header><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><p className="text-slate-400">Soal tersimpan di browser ini dan digunakan saat peserta memulai ujian.</p><button onClick={addQuestion} className="rounded-full bg-brand-500 px-5 py-3 font-semibold">Tambah soal</button></div>{saved && <p role="status" className="mb-4 text-sm text-emerald-300">Perubahan tersimpan.</p>}<div className="space-y-5">{questions.map((question, index) => <article key={question.id} className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><div className="mb-4 flex items-center justify-between"><h2 className="font-bold">Soal {index + 1}</h2><button onClick={() => persist(questions.filter((item) => item.id !== question.id))} className="text-sm text-red-300">Hapus</button></div><label className="mb-2 block text-sm text-slate-400">Pertanyaan</label><textarea value={question.text} onChange={(event) => update(question.id, { text: event.target.value })} className="mb-4 w-full rounded-xl border border-slate-700 bg-slate-950 p-3" rows={2}/><div className="grid gap-3 md:grid-cols-2">{question.options.map((option, optionIndex) => <label key={optionIndex} className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950 p-3"><input type="radio" name={`answer-${question.id}`} checked={question.answer === optionIndex} onChange={() => update(question.id, { answer: optionIndex })}/><input aria-label={`Pilihan ${optionIndex + 1}`} value={option} onChange={(event) => { const options = [...question.options]; options[optionIndex] = event.target.value; update(question.id, { options }); }} className="min-w-0 flex-1 bg-transparent outline-none"/></label>)}</div><p className="mt-3 text-xs text-slate-500">Pilih radio untuk menetapkan jawaban benar.</p></article>)}</div><Link href="/ujian" className="mt-8 inline-block rounded-full bg-emerald-600 px-5 py-3 font-semibold">Pratinjau ujian</Link></div></main>;
 }
