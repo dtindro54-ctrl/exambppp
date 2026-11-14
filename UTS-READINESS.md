@@ -1,22 +1,29 @@
-# Penggunaan ujian untuk UTS — status dan persiapan wajib
+# EXAMBPPP — status kesiapan UTS
 
-Perubahan terbaru menambahkan guardrail database Supabase untuk memulai ujian, menyimpan jawaban, menghitung nilai di server, dan mencatat pelanggaran fokus/tab. Migration ini harus diterapkan setelah `202611140001_initial_exam_schema.sql`.
+Saya sedang mengubah autentikasi dari akun hard-coded ke Supabase Auth. Login sekarang menolak akun demo dan memeriksa profil dari database; middleware memerlukan sesi Supabase untuk membuka rute aplikasi saat konfigurasi Supabase tersedia.
 
-## Status jujur
+## Konfigurasi hosting
 
-Repo saat ini **belum siap langsung dipakai untuk UTS**: halaman aplikasi masih memakai login demo/localStorage dan belum terhubung ke Supabase. Migration database adalah fondasi keamanan, bukan pengganti integrasi aplikasi, setup akun, pengujian, dan deployment. Jangan memasukkan data nyata siswa atau menjalankan ujian resmi lewat UI demo.
+1. Buat project Supabase milik sekolah dan uji dahulu dengan data fiktif.
+2. Terapkan secara berurutan `supabase/migrations/202611140001_initial_exam_schema.sql`, lalu `202611140002_exam_guardrails.sql`.
+3. Buat akun Auth untuk admin dan siswa, kemudian profil `public.profiles` yang `id`-nya sama dengan `auth.users.id`. Tetapkan role admin melalui proses tepercaya. Jangan pernah mengekspos service-role key ke browser atau Git.
+4. Di pengaturan Vercel project, tambahkan `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` untuk Preview dan Production, lalu redeploy.
+5. Login saat ini memakai email + password Supabase. ID siswa hanya ditampilkan sebagai identitas profil; login langsung dengan ID siswa belum tersedia.
 
-## Sebelum UTS
+## Peringatan penting: belum siap untuk ujian resmi
 
-1. Buat project Supabase milik sekolah dan project terpisah untuk uji coba.
-2. Terapkan migration pertama lalu migration `202611140002_exam_guardrails.sql` di Supabase SQL Editor.
-3. Buat admin melalui Supabase Auth, tetapkan role admin pada profil menggunakan trusted SQL/admin process. Jangan pernah mengirim service-role key ke browser atau commit ke Git.
-4. Hubungkan aplikasi dengan Supabase Auth dan database di server/client yang sesuai; implementasikan login admin/siswa, roster, kelas/mapel, bank soal, jadwal ujian, penyimpanan jawaban berkala, submit, hasil/sertifikat, dan audit log. Rute yang menggunakan data browser demo harus diganti, bukan sekadar ditambahkan berdampingan.
-5. Uji dengan akun dan data fiktif: akses antar kelas, izin admin/siswa, batas jadwal/durasi, reconnect, submit ganda, browser refresh, cetak hasil, backup/restore.
-6. Tinjau keamanan, privasi dan persetujuan orang tua/sekolah, aksesibilitas, kapasitas, serta prosedur gangguan internet. Baru setelah semua lulus, deploy ke Vercel dan jalankan simulasi UTS.
+Login dan middleware merupakan fondasi awal, tetapi halaman ujian, bank soal, hasil, siswa, dan mapel belum semuanya dimigrasikan dari `localStorage` ke database. Ujian siswa tidak boleh dijalankan sampai seluruh halaman memakai Supabase dengan server-side authorization/RLS, jawaban disimpan berkala, penilaian berasal dari RPC server, admin bisa melihat data lintas perangkat, skema diuji, dan deploy lulus simulasi.
 
-## Pengawasan
+Middleware menegakkan keberadaan sesi Supabase, bukan seluruh role authorization. Rute sensitif dan operasi data tetap wajib divalidasi oleh RLS/database. Jangan anggap localStorage sebagai bukti identitas atau izin.
 
-Aplikasi web dapat mencatat visibility/focus change sebagai sinyal pengawasan; sinyal ini tidak anti-pemalsuan dan bukan bukti kecurangan. Situs web tidak dapat mengunci seluruh HP atau mencegah perpindahan ke WhatsApp/browser lain. Jika diwajibkan, gunakan perangkat sekolah terkelola dengan kiosk/lockdown browser resmi dan pengawas.
+Situs web tidak bisa mengunci seluruh HP. Untuk perangkat sekolah gunakan kiosk/lockdown browser resmi, perangkat terkelola, dan pengawas. Perpindahan tab hanya sinyal dan bukan bukti kecurangan.
 
-Kredensial demo `admin/admin123` dan `peserta/peserta123` hanya untuk demonstrasi. Jangan berikan ke siswa untuk ujian resmi.
+## Uji lokal
+
+Salin `.env.example` menjadi `.env.local`, isi URL dan anon key dari Supabase, kemudian:
+
+```bash
+npm install
+npm run dev
+npm run build
+```
