@@ -1,0 +1,7 @@
+@media print {
+  :root { color-scheme: light; }
+  body { background: #fff !important; color: #111827 !important; }
+  .print\\:hidden { display: none !important; }
+  .certificate { box-shadow: none !important; break-inside: avoid; }
+  @page { size: A4 landscape; margin: 14mm; }
+}
