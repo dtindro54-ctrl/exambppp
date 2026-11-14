@@ -1,56 +1,33 @@
 # EXAMBPPP
 
-EXAMBPPP is a production-style exam management demo designed for public deployment and rapid product validation. It includes admin management, question bank controls, a timed exam flow, auto-scoring, and result tracking in a clean Next.js interface.
+Aplikasi web ujian sederhana berbasis Next.js untuk demo/pilot: beranda publik, login demo, dashboard, bank soal, ujian bertimer, penilaian otomatis, dan riwayat hasil.
 
-## Features
+## Jalankan lokal
 
-- Admin and participant role flows
-- Exam dashboard with role-aware navigation
-- Question bank editor for admin
-- Timed exam experience
-- Automatic scoring and result history
-- Responsive dark UI for deployment-ready presentation
-- API health endpoints for operational readiness checks
-
-## Local run
-
-Requires Node.js 18.17+.
+Butuh Node.js 18.17 atau lebih baru.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open:
+Buka http://localhost:3000.
 
-- http://localhost:3000
+## Akun demo
 
-## Demo auth
+- Admin: `admin` / `admin123`
+- Peserta: `peserta` / `peserta123`
 
-- Admin: admin / admin123
-- Participant: peserta / peserta123
+## Upload soal otomatis
 
-## Production-style notes
+Masuk sebagai admin, buka Dashboard → Bank soal. Pilih file CSV atau JSON; aplikasi akan memeriksa format dan mengimpor soal. Anda bisa memilih mengganti soal lama atau menambahkan soal ke bank yang ada. Tombol **Unduh template CSV** menyediakan contoh format. Jawaban benar boleh ditulis A/B/C/D atau 1/2/3/4.
 
-This project is a strong demo/pilot implementation, not a full production SaaS with secure authentication or database persistence. It is designed to show the product flow clearly and can be extended with Supabase/PostgreSQL, server-side auth, audit logs, and role permissions.
+Format CSV header: `question,optionA,optionB,optionC,optionD,answer`.
 
-## Deployment to Vercel
+Format JSON dapat berupa array soal dengan properti `text`, `options` (empat pilihan), dan `answer` (indeks 0–3 atau A–D), atau objek dengan properti `questions` berisi array tersebut.
 
-1. Push the repository to GitHub.
-2. Import the repo into Vercel.
-3. Vercel auto-detects the Next.js app.
-4. Keep default build settings.
-5. Deploy.
+> Versi ini menyimpan bank soal di localStorage browser. Soal hanya tersedia di browser/perangkat yang mengunggahnya; sinkronisasi antar perangkat membutuhkan database backend.
 
-This environment cannot directly connect to your Vercel account, so the final live deployment still requires your own hosting authorization.
+## Deployment Vercel
 
-## Future upgrade path
-
-Recommended real production next steps:
-
-- Supabase/PostgreSQL
-- NextAuth or secure session management
-- Server-side protected routes
-- User management and audit logging
-- CSV/PDF export of results
-- Multi-tenant exam configuration
+Impor repo `dtindro54-ctrl/exambppp` ke Vercel. Build terbaru pada branch `main` akan memicu deployment otomatis bila integrasi repo sudah aktif.
